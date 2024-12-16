@@ -107,8 +107,7 @@ class Client:
         response.raise_for_status()
 
         j = response.json()
-        for item in j["entry"]:
-            yield item
+        return j["entry"]
 
     async def close(self):
         await self.httpx_client.aclose()
