@@ -47,10 +47,10 @@ class Client:
         return response.status_code != 401
 
     async def request(self, *args, **kwargs):
-        if "data" not in kwargs:
-            kwargs["data"] = {"output_mode": "json"}
-        elif "output_mode" not in kwargs:
-            kwargs["data"]["output_mode"] = "json"
+        if "params" not in kwargs:
+            kwargs["params"] = {"output_mode": "json"}
+        elif "output_mode" not in kwargs["params"]:
+            kwargs["params"]["output_mode"] = "json"
 
         return await self.httpx_client.request(*args, **kwargs)
 
@@ -98,6 +98,17 @@ class Client:
 
         # Parsing (if any) is done later
         return response.text
+
+    async def eai_get(self, endpoint: str):
+        # In my testing, concurency doesn't get us much here. So I just grab all
+        # records.
+        params = {"count": 0}
+        response = await self.request("GET", endpoint, params=params)
+        response.raise_for_status()
+
+        j = response.json()
+        for item in j["entry"]:
+            yield item
 
     async def close(self):
         await self.httpx_client.aclose()

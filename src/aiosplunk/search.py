@@ -65,7 +65,7 @@ class Search:
             latest="",
             output_mode=output_mode,
             num_workers=num_workers,
-            chunk_size=chunk_size
+            chunk_size=chunk_size,
         )
         search.sid = sid
         search.job_summary = await splunk_client.get_summary(sid)
@@ -84,7 +84,6 @@ class Search:
 
         self.sid = await self.splunk_client.run_search(**job_def)
         self.job_summary = await self.wait_and_get_summary()
-
 
     async def wait_and_get_summary(self):
         """
@@ -106,8 +105,8 @@ class Search:
 
     async def get_chunks(self, fields: list | None = None):
         """
-        Split results into <self.chunk_size> chunks, and then assign 
-        <self.num_workers> workers to grab them concurrently. 
+        Split results into <self.chunk_size> chunks, and then assign
+        <self.num_workers> workers to grab them concurrently.
         """
         if not self.sid:
             raise Exception("Cannot get results without an SID.")
@@ -161,13 +160,13 @@ class Search:
         elif self.output_mode == OutputMode.dict:
             parsed = loads(chunk_data)
             return parsed["results"]
-        
+
         else:
             raise ValueError(f"Unknown output_mode: {self.output_mode}")
 
     async def get_results(self, fields: list | None = None):
         print("get chunks")
-        chunks = [item async for item in self.get_chunks(fields=fields)] 
+        chunks = [item async for item in self.get_chunks(fields=fields)]
 
         print("sort chunks")
         chunks_sorted = await self.sort_chunks(chunks)
@@ -177,9 +176,7 @@ class Search:
         for offset, chunk in chunks_sorted:
             print("parse chunk")
             await sleep(0)  # Yield control back to the event loop
-            for row in self.parse_chunk(
-                chunk_data=chunk, offset=offset
-            ):
+            for row in self.parse_chunk(chunk_data=chunk, offset=offset):
                 yield row
 
     @staticmethod
@@ -188,17 +185,17 @@ class Search:
 
         return chunks
 
-
-
     async def result_worker(self, fields: list | None = None) -> None:
         if not self.sid:
             raise ValueError("Can't get results with no SID")
-        
+
         while True:
             offset = await self.to_be_retrieved.get()
 
             output_mode_str = (
-                "json" if self.output_mode == OutputMode.dict else self.output_mode.value
+                "json"
+                if self.output_mode == OutputMode.dict
+                else self.output_mode.value
             )
             results = await self.splunk_client.get_results(
                 self.sid, self.chunk_size, offset, output_mode_str, fields
