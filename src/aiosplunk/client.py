@@ -3,6 +3,8 @@ from asyncio import run
 
 from httpx import AsyncClient, AsyncHTTPTransport, Auth, BasicAuth
 
+from .exceptions import HTTPError, AuthenticationError
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,12 +41,14 @@ class Client:
             transport=transport, auth=auth, base_url=base_url
         )
 
+
     async def test_auth(self):
         """
         Simple function for verifying configured auth method
         """
         response = await self.request("GET", "/services/authentication/current-context")
-        return response.status_code != 401
+        if response.status_code == 401:
+            raise AuthenticationError("Splunk API authentication failed")
 
     async def request(self, *args, **kwargs):
         if "params" not in kwargs:
@@ -52,7 +56,10 @@ class Client:
         elif "output_mode" not in kwargs["params"]:
             kwargs["params"]["output_mode"] = "json"
 
-        return await self.httpx_client.request(*args, **kwargs)
+        response = await self.httpx_client.request(*args, **kwargs)
+        if not 200 <= response.status_code <= 299:
+            raise HTTPError(response=response)
+        return response
 
     async def run_search(self, **kwargs):
         response = await self.request("POST", "/services/search/jobs", data=kwargs)
