@@ -114,7 +114,9 @@ class Client:
         response.raise_for_status()
 
         j = response.json()
-        return j["entry"]
+        if "entry" in j:
+            return j["entry"]
+        return []
 
     async def close(self):
         await self.httpx_client.aclose()
