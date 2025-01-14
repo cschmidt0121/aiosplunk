@@ -18,7 +18,7 @@ class SplunkTokenAuth(Auth):
         yield request
 
 
-class Client:
+class SplunkClient:
     def __init__(
         self,
         host: str,

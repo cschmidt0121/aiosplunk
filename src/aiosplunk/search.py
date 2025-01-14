@@ -4,7 +4,7 @@ from enum import Enum
 from json import loads
 from typing import Any
 
-from .client import Client
+from .client import SplunkClient
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class OutputMode(Enum):
 class Search:
     def __init__(
         self,
-        splunk_client: Client,
+        splunk_client: SplunkClient,
         search_string: str,
         earliest: str,
         latest: str,
@@ -52,7 +52,7 @@ class Search:
     @classmethod
     async def from_sid(
         cls,
-        splunk_client: Client,
+        splunk_client: SplunkClient,
         sid: str,
         output_mode: OutputMode = OutputMode.dict,
         num_workers: int = 25,

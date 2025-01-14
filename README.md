@@ -10,10 +10,10 @@ Very much a work-in-progress.
 ```
 import aiofiles
 
-from aiosplunk import Client, Search
+from aiosplunk import SplunkClient, Search
 from aiosplunk.search import OutputMode
 
-client = Client(host="localhost", username="user", password="pass")
+client = SplunkClient(host="localhost", username="user", password="pass")
 
 search = Search(
     splunk_client=client,
@@ -35,10 +35,10 @@ async with aiofiles.open("out.csv", "w") as f:
 ### Pull down results from an existing search and do something with the results
 
 ```
-from aiosplunk import Client, Search
+from aiosplunk import SplunkClient, Search
 from aiosplunk.search import OutputMode
 
-client = Client(host="localhost", username="user", password="pass")
+client = SplunkClient(host="localhost", username="user", password="pass")
 
 search = await Search.from_sid(
     splunk_client=client, sid="1734103773.893674", output_mode=OutputMode.dict
