@@ -23,7 +23,7 @@ search = Search(
     output_mode=OutputMode.csv,
 )
 
-await search.run()f
+await search.run()
 async with aiofiles.open("out.csv", "w") as f:
     lines = []
     async for line in s.get_results(fields=["_raw", "host"]):
@@ -45,7 +45,7 @@ search = await Search.from_sid(
 )
 
 lines = []
-async for d in s.get_results(fields=["_raw", "host", "my_field"]):
+async for d in search.get_results(fields=["_raw", "host", "my_field"]):
     my_field = d.get("my_field")
     ...
 
