@@ -4,6 +4,8 @@ from httpx import Response
 class AuthenticationError(Exception):
     pass
 
+class FailedSearchError(Exception):
+    pass
 
 class HTTPError(Exception):
     def __init__(self, response: Response):
@@ -13,3 +15,4 @@ class HTTPError(Exception):
 
         message = f"HTTP {self.status_code} - {self.text}"
         super().__init__(message)
+

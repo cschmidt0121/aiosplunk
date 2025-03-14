@@ -5,6 +5,7 @@ from json import loads
 from typing import Any
 
 from .client import SplunkClient
+from .exceptions import FailedSearchError
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,12 @@ class Search:
 
         self.sid = await self.splunk_client.run_search(**job_def)
         self.job_summary = await self.wait_and_get_summary()
+        if self.job_summary.get("dispatchState") == "FAILED":
+            messages = []
+            for message in self.job_summary.get("messages", []):
+                messages.append(f'{message["type"]} - {message["text"]}')
+            message = "\n".join(messages)
+            raise FailedSearchError(message)
 
     async def wait_and_get_summary(self):
         """
@@ -165,6 +172,11 @@ class Search:
             raise ValueError(f"Unknown output_mode: {self.output_mode}")
 
     async def get_results(self, fields: list | None = None):
+        result_count = self.job_summary.get("resultCount", 0)
+        # If there are no results, we have nothing to do.
+        if result_count == 0:
+            return
+
         chunks = [item async for item in self.get_chunks(fields=fields)]
 
         chunks_sorted = await self.sort_chunks(chunks)
