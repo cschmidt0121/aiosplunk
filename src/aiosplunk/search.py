@@ -165,10 +165,8 @@ class Search:
             raise ValueError(f"Unknown output_mode: {self.output_mode}")
 
     async def get_results(self, fields: list | None = None):
-        print("get chunks")
         chunks = [item async for item in self.get_chunks(fields=fields)]
 
-        print("sort chunks")
         chunks_sorted = await self.sort_chunks(chunks)
 
         # Offset is the first item in each chunk tuple. For CSV parsing it needs to
