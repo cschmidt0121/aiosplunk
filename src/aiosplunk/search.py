@@ -184,7 +184,6 @@ class Search:
         # Offset is the first item in each chunk tuple. For CSV parsing it needs to
         # be passed along so that the header can be printed out exactly once.
         for offset, chunk in chunks_sorted:
-            print("parse chunk")
             await sleep(0)  # Yield control back to the event loop
             for row in self.parse_chunk(chunk_data=chunk, offset=offset):
                 yield row
