@@ -3,6 +3,10 @@
 An asyncio-based Python module for interacting with Splunk. Currently limited to only searches.
 Very much a work-in-progress.
 
+## Installation
+
+`pip install aiosplunk`
+
 ## Examples
 
 ### Run a search and dump results out to a CSV file

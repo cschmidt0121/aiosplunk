@@ -6,6 +6,9 @@ requires-python = ">=3.11"
 dependencies = [
     "httpx"
 ]
+license = { text = "MIT" }
+readme = "README.md"
+
 
 [build-system]
 requires = ["hatchling"]
