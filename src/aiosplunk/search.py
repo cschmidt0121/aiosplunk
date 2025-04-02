@@ -69,7 +69,7 @@ class Search:
             chunk_size=chunk_size,
         )
         search.sid = sid
-        search.job_summary = await splunk_client.get_summary(sid)
+        search.job_summary = await splunk_client.get_job(sid)
         return search
 
     async def run(self):
