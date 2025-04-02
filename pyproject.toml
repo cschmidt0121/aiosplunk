@@ -1,6 +1,6 @@
 [project]
 name = "aiosplunk"
-version = "0.2.3"
+version = "0.2.4"
 description = "Async Splunk SDK"
 requires-python = ">=3.11"
 dependencies = [
