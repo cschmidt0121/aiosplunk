@@ -73,14 +73,6 @@ class SplunkClient:
         response.raise_for_status()
         return response.json()["entry"][0]["content"]
 
-    async def get_summary(self, sid: str) -> dict:
-        url = f"/services/search/jobs/{sid}"
-        params = {"output_mode": "json"}
-
-        response = await self.request("GET", url, params=params)
-        response.raise_for_status()
-        return response.json()
-
     async def get_results(
         self,
         sid: str,
