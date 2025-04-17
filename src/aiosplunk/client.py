@@ -7,6 +7,7 @@ from .exceptions import HTTPError, AuthenticationError
 
 logger = logging.getLogger(__name__)
 
+
 async def hook(response: Response) -> None:
     """
     If the response is an error, synchronously read the response body before raising.
@@ -37,6 +38,7 @@ class SplunkClient:
         token: str | None = None,
         username: str | None = None,
         password: str | None = None,
+        timeout: int = 10,
     ):
         if username is not None and password is not None:
             auth = BasicAuth(username=username, password=password)
@@ -48,9 +50,12 @@ class SplunkClient:
         base_url = f"https://{host}:{port}"
         transport = AsyncHTTPTransport(retries=5, verify=verify)
         self.httpx_client = AsyncClient(
-            transport=transport, auth=auth, base_url=base_url, event_hooks={"response": [hook]}
+            transport=transport,
+            auth=auth,
+            base_url=base_url,
+            event_hooks={"response": [hook]},
+            timeout=timeout,
         )
-
 
     async def test_auth(self):
         """
