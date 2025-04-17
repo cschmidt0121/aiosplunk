@@ -1,11 +1,21 @@
 import logging
 from asyncio import run
 
-from httpx import AsyncClient, AsyncHTTPTransport, Auth, BasicAuth
+from httpx import AsyncClient, AsyncHTTPTransport, Auth, BasicAuth, Response
 
 from .exceptions import HTTPError, AuthenticationError
 
 logger = logging.getLogger(__name__)
+
+async def hook(response: Response) -> None:
+    """
+    If the response is an error, synchronously read the response body before raising.
+    This is necessary because the response body is not immediately available when
+    streaming.
+    """
+    if response.is_error:
+        await response.aread()
+        raise HTTPError(response)
 
 
 class SplunkTokenAuth(Auth):
@@ -38,7 +48,7 @@ class SplunkClient:
         base_url = f"https://{host}:{port}"
         transport = AsyncHTTPTransport(retries=5, verify=verify)
         self.httpx_client = AsyncClient(
-            transport=transport, auth=auth, base_url=base_url
+            transport=transport, auth=auth, base_url=base_url, event_hooks={"response": [hook]}
         )
 
 
@@ -109,6 +119,16 @@ class SplunkClient:
         if "entry" in j:
             return j["entry"]
         return []
+
+    async def get_diag(self):
+        """
+        Stream a diag from the Splunk server.
+        """
+        async with self.httpx_client.stream("GET", "/services/streams/diag") as r:
+            if not 200 <= r.status_code <= 299:
+                raise HTTPError(r)
+            async for chunk in r.aiter_bytes():
+                yield chunk
 
     async def close(self):
         await self.httpx_client.aclose()
